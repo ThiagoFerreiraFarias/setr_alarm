@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_activated="false"
+        android:drawable="@drawable/bg_alarm_bullet_deactivated"/>
+    <item android:state_activated="true"
+        android:state_enabled="false"
+        android:drawable="@drawable/bg_alarm_bullet_activated"/>
+    <item android:state_activated="true"
+        android:state_enabled="true"
+        android:drawable="@drawable/bg_alarm_bullet_triggered"/>
+</selector>

@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">setrAlarm</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="dashboard_title">CENTRAL DE COMANDO</string>
+    <string name="btn_alarm_mode">Selecionar modo de alarme</string>
+
+    <string name="tv_alarm_incendio">Incêndio</string>
+    <string name="tv_alarm_intrusao_in">intrusão Interno</string>
+    <string name="tv_alarm_intrusao_out">intrusão Externo</string>
+
+
+<!--    COMANDOS ALARME -->
+
+    <string name="subscribe_mqqt_tx">/ipcAlarm/serialdata/tx</string>
+    <string name="send_msg_mqqt_rx">/ipcAlarm/serialdata/rx</string>
+
+    <string name="request_msg_status">!status</string>
+
+<!--    Serial.println(F("!mode ARM [PIN] "));-->
+<!--    Serial.println(F("!mode DIS [PIN] "));-->
+<!--    Serial.println(F("!mode HOME [PIN] "));-->
+<!--    Serial.println(F("!set [PIN] PIN [NEWPIN]"));-->
+<!--    Serial.println(F("!set [PIN] ALARM 1 "));-->
+<!--    Serial.println(F("!set [PIN] ALARM 0 "));-->
+<!--    Serial.println(F("!maint 1/0 [password]"));-->
+<!--    Serial.println(F("!status"));-->
+
+
+<!--    !pin 0000-->
+<!--    pin_valid-->
+<!--    pin_invalid-->
+
+<!--    envia a cada 5 segundos um status para garantir funcionamento do alarme-->
+
+<!--    status|incendio(0/1)|intrusao(0/1)|intrusaocasa(0/1)-->
+
+
+</resources>
