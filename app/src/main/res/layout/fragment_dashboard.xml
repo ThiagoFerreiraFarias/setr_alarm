@@ -159,6 +159,7 @@
 <!--            app:layout_constraintStart_toStartOf="@+id/btn_requestStatus"-->
 <!--            app:layout_constraintTop_toBottomOf="@+id/btn_requestStatus" />-->
 
+
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guide_line_50"
             android:layout_width="1dp"
@@ -453,6 +454,28 @@
             </androidx.appcompat.widget.LinearLayoutCompat>
 
         </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_fake_splash"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:translationZ="10dp"
+            android:background="@color/black"
+            android:visibility="visible"
+            >
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/lottie_anim"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:lottie_rawRes="@raw/lottie_lock_bg_black"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

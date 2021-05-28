@@ -1,5 +1,6 @@
 package pt.setralarm.presentation.ui
 
+import android.animation.Animator
 import android.graphics.Color
 import android.os.Bundle
 import android.view.*
@@ -26,8 +27,25 @@ class DashboardFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         bind = FragmentDashboardBinding.bind(view)
         bind.viewModel = viewModel
+        setupUI()
         setupObservers()
         setupButtons()
+    }
+
+    private fun setupUI() {
+        bind.apply {
+            lottieAnim.addAnimatorListener(object : Animator.AnimatorListener {
+                override fun onAnimationRepeat(animation: Animator?) {
+                    clFakeSplash.visibility = View.GONE
+                    lottieAnim.cancelAnimation()
+                }
+                override fun onAnimationEnd(animation: Animator?) {}
+                override fun onAnimationCancel(animation: Animator?) {}
+                override fun onAnimationStart(animation: Animator?) {}
+
+            })
+
+        }
     }
 
     private fun sendMessage(msg: String, isInternal: Boolean? = true) {
@@ -44,6 +62,7 @@ class DashboardFragment : Fragment() {
 
     private fun setupObservers() {
         bind.viewModel?.apply {
+
             this.alarmModeType.observe(viewLifecycleOwner, Observer { alarmeMode ->
                 bind.apply {
                     setStatus(btnPos1, alarmeMode == AlarmMode.DISARMED)

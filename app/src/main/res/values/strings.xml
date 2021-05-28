@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">setrAlarm</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="dashboard_title">CENTRAL DE COMANDO</string>
+    <string name="dashboard_title">CENTRAL DE COMANDO \n Tesla Alarmes</string>
     <string name="btn_alarm_mode">Selecionar modo de alarme</string>
 
     <string name="tv_alarm_incendio">Incêndio</string>
