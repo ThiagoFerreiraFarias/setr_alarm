@@ -10,27 +10,37 @@ import pt.setralarm.MyApplication
 import pt.setralarm.R
 import pt.setralarm.util.AlarmMode
 
-class MqqtService(val context: Context) {
+class MqttService(val context: Context) {
 
     companion object {
         const val TAG = "AndroidMqttClient"
         const val SERVER_URI = "tcp://public.mqtthq.com"
         const val SERVER_PORT = "1883"
 
-        private var _msgFeed = MutableLiveData<String>()
-        val msgFeed : LiveData<String> =_msgFeed
 
-        var externalModeStatus : ((AlarmMode)->Unit) = {}
     }
 
     private val clientId: String = MqttClient.generateClientId()
     private val serverURI = "$SERVER_URI:$SERVER_PORT"
     var client : MqttAndroidClient = MqttAndroidClient(context, serverURI,clientId)
 
+    var externalModeStatus : ((AlarmMode)->Unit) = {}
+    var pinValidation : ((Boolean)->Unit) = {}
+
+    var alarmStatusCheck : ((String)->Unit) = {}
+    var preAlarmeStatusCheck : ((String)->Unit) = {}
+    var fireCheck : ((Boolean)->Unit) = {}
+    var internalIntrusionCheck : ((Boolean)->Unit) = {}
+    var externalIntrusionCheck : ((Boolean)->Unit) = {}
+
+    private var _msgFeed = MutableLiveData<String>()
+    val msgFeed : LiveData<String> =_msgFeed
+
     private var isInternalMessage = false
 
     var attempt = 0
-    var checkSubscription : ((Boolean) -> Unit)? =null
+
+    val regex5secCheck = """^(?<mode>[A-Z]+)\|(?<alarm>[A-Z]+)\|(?<prealarm>[A-Z]+)\|FIRE\:(?<fire>[0-1]+)\|HOME\:(?<home>[0-1]+)\|INTRUSION\:(?<intrusion>[0-1]+)\|TIMER\:(?<timer>[0-9]+)$""".toRegex()
 
 
     fun connect() : Boolean {
@@ -38,46 +48,40 @@ class MqqtService(val context: Context) {
         client.setCallback(object : MqttCallback {
             override fun messageArrived(topic: String?, message: MqttMessage?) {
                 Log.d(TAG, "Receive message: ${message.toString()} from topic: $topic")
-                if(!isInternalMessage) {
-                    message?.let {
-                        externalModeStatus.invoke(
-                            when (it.toString()) {
-                                "Arming System\r" -> {
-                                    isInternalMessage = false
-                                    AlarmMode.ARMED_FULL
-                                }
-                                "Arming HOME System\r" -> {
-                                    isInternalMessage = false
-                                    AlarmMode.ARMED_IN_HOME
-                                }
-                                "Disarming System\r" -> {
-                                    isInternalMessage = false
-                                    AlarmMode.DISARMED
-                                }
-                                else -> {
-                                    isInternalMessage = false
-                                    AlarmMode.UNKNOWN
-                                }
-                            }
-                        )
-                    }
+                message?.let {
+                    var msg = it.toString().replace("\r","")
 
-                } else {
-                    setMessageInFeed("Receive message: ${message.toString()} from topic: $topic")
-                    isInternalMessage = false
+                        var regexResult = regex5secCheck?.matchEntire(msg)?.groupValues?.toList()
+
+                        if(regexResult?.isNotEmpty() == true){
+                            externalModeStatus.invoke(getModeByName(regexResult[1])) //modo alarme
+                            alarmStatusCheck.invoke(regexResult[2]) //estado do alarme
+                            preAlarmeStatusCheck.invoke(regexResult[3]) //estado do pré alarme
+                            fireCheck.invoke(regexResult[4].toInt()==1) //alarme incendio 0/1
+                            internalIntrusionCheck.invoke(regexResult[5].toInt()==1) //alarme intrusão interno 0/1
+                            externalIntrusionCheck.invoke(regexResult[6].toInt()==1) //alarme intrusão externo 0/1
+                            regexResult[7] //timer
+                            Log.d("Regex",regexResult.toString())
+                        } else if (msg.toLowerCase().startsWith("pin_")) {
+                            pinValidation.invoke(msg.toLowerCase() == "pin_valid")
+                        } else {
+                            setMessageInFeed("Receive message: $msg from topic: $topic")
+                        }
+                        isInternalMessage = false
                 }
-
             }
 
             override fun connectionLost(cause: Throwable?) {
                 Log.d(TAG, "Connection lost ${cause.toString()}")
                 setMessageInFeed("Connection lost ${cause.toString()}")
+                connect()
             }
 
             override fun deliveryComplete(token: IMqttDeliveryToken?) {
 
             }
         })
+
         val options = MqttConnectOptions()
         try {
             client.connect(options, null, object : IMqttActionListener {
@@ -92,6 +96,7 @@ class MqqtService(val context: Context) {
                     Log.d(TAG, "Connection failure")
                     setMessageInFeed("Connection failure")
                     isConnected= false
+                    connect()
                 }
             })
         } catch (e: MqttException) {
@@ -192,5 +197,14 @@ class MqqtService(val context: Context) {
 
     private fun setMessageInFeed(msg : String){
         _msgFeed.value = msg
+    }
+
+    private fun getModeByName(mode: String): AlarmMode {
+       return  when(mode){
+            "ARMED" -> AlarmMode.ARMED_FULL
+            "ARMEDHOME" -> AlarmMode.ARMED_IN_HOME
+            "DISARMED" -> AlarmMode.DISARMED
+            else ->  AlarmMode.UNKNOWN
+        }
     }
 }

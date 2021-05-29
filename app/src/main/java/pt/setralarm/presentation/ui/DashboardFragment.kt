@@ -3,6 +3,7 @@ package pt.setralarm.presentation.ui
 import android.animation.Animator
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.Button
 import androidx.fragment.app.Fragment
@@ -12,13 +13,13 @@ import androidx.lifecycle.ViewModelStoreOwner
 import pt.setralarm.MyApplication
 import pt.setralarm.R
 import pt.setralarm.databinding.FragmentDashboardBinding
-import pt.setralarm.domain.MqqtService
 import pt.setralarm.presentation.viewmodel.DashboardViewModel
 import pt.setralarm.util.AlarmMode
 
 class DashboardFragment : Fragment() {
 
     private lateinit var bind: FragmentDashboardBinding
+    private val mqttService = MyApplication.mqttService
     private val viewModel by lazy { ViewModelProvider(this as ViewModelStoreOwner)[DashboardViewModel::class.java] }
 //    private lateinit var navController: NavController
 
@@ -48,10 +49,6 @@ class DashboardFragment : Fragment() {
         }
     }
 
-    private fun sendMessage(msg: String, isInternal: Boolean? = true) {
-        MyApplication.mqqtService.publish(msg, isInternal = isInternal)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -72,37 +69,15 @@ class DashboardFragment : Fragment() {
                 setSensorsStatus(alarmeMode)
             })
 
-
-            this.requestPinCode.observe(viewLifecycleOwner, Observer {
-                it.onHandled {
-                    /**
-                    //metodo para edit text - funciona para testes
-                    bind.etPin.setText("")
-
-                    val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                    imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0)
-                    bind.etPin.requestFocus()
-                    bind.clPinContainer.isVisible = true
-                     **/
-                }
-            })
-
-
             timerText.observe(viewLifecycleOwner, Observer {
 //                bind.tvTimer.text = it
             })
 
-            isSystemBlocked.observe(viewLifecycleOwner, Observer {
+            this.isSystemBlocked.observe(viewLifecycleOwner, Observer {
                 it.onHandled {
                     bind.ivLock.setImageResource(if(it.getContent()) R.drawable.ic_lock_closed_24 else R.drawable.ic_lock_open_24)
                 }
             })
-
-//            displayTypedPin.observe(viewLifecycleOwner, Observer {
-//                it.onHandled {
-//                    bind.tvPinInput.text = it.getContent()
-//                }
-//            })
 
             instructionMsg.observe(viewLifecycleOwner, Observer {
                 it.onHandled {
@@ -112,7 +87,7 @@ class DashboardFragment : Fragment() {
 
         }
 
-        MqqtService.apply {
+        mqttService.apply {
             msgFeed.observe(viewLifecycleOwner, Observer {
                 it?.let {
                     bind.tvFeedMessages.text = it
@@ -124,6 +99,27 @@ class DashboardFragment : Fragment() {
                     bind.tvFeedMessages.text = it.name
                     viewModel.selectedMode(it, true)
                 }
+            }
+
+            pinValidation = {
+                viewModel.setPinvalidation(it)
+            }
+
+            alarmStatusCheck = {
+                Log.d("Check", "alarmStatusCheck $it")
+            }
+
+            preAlarmeStatusCheck = {
+                Log.d("Check", "preAlarmeStatusCheck $it")
+            }
+            fireCheck= {
+                bind.ivAlarmPos1.isEnabled = it
+            }
+            internalIntrusionCheck= {
+                bind.ivAlarmPos2.isEnabled = it
+            }
+            externalIntrusionCheck= {
+                bind.ivAlarmPos3.isEnabled = it
             }
 
         }
@@ -182,7 +178,6 @@ class DashboardFragment : Fragment() {
         }
     }
 
-
     private fun setStatus(it: Button, isSelected: Boolean) {
         it.isSelected = isSelected
         it.setTextColor(getColorByStatus(it.isSelected))
@@ -192,16 +187,6 @@ class DashboardFragment : Fragment() {
     private fun getColorByStatus(isSelected: Boolean): Int {
         return if (isSelected) Color.GREEN else Color.WHITE
     }
-//
-//    override fun onBackPressed(): Boolean {
-//        return if (bind.clPinContainer.isVisible) {
-//            bind.clPinContainer.visibility = View.GONE
-//            true
-//        } else{
-//            false
-//        }
-//    }
-
 
     private fun setupButtons() {
         bind.apply {

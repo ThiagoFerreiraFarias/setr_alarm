@@ -2,14 +2,14 @@ package pt.setralarm
 
 import android.app.Application
 import android.content.Context
-import pt.setralarm.domain.MqqtService
+import pt.setralarm.domain.MqttService
 
 class MyApplication : Application() {
 
 
     companion object{
         lateinit var instance : MyApplication
-        lateinit var mqqtService : MqqtService
+        lateinit var mqttService : MqttService
 
         fun applicationContext(): Context {
             return instance.applicationContext
@@ -27,9 +27,8 @@ class MyApplication : Application() {
     }
 
     private fun createMqqtService(context: Context) {
-        mqqtService = MqqtService(context)
-        mqqtService.connect()
-
+        mqttService = MqttService(context)
+        mqttService.connect()
     }
 
 }

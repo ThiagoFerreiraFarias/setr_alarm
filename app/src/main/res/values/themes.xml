@@ -2,6 +2,7 @@
     <!-- Base application theme. -->
     <style name="Theme.SetrAlarm" parent="Theme.AppCompat.NoActionBar">
         <!-- Primary brand color. -->
+        <item name="android:windowSplashscreenContent" tools:targetApi="o">@color/black</item>
         <item name="colorPrimary">@color/purple_500</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>
         <item name="colorOnPrimary">@color/teal_200</item>
