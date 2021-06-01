@@ -4,8 +4,12 @@ import android.animation.Animator
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
+import androidx.core.view.isVisible
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -85,6 +89,16 @@ class DashboardFragment : Fragment() {
                 }
             })
 
+            changeAlarmIcon.observe(viewLifecycleOwner, {
+                it.onHandled {
+                    bind.ivAlarmInfo.setImageResource(R.drawable.ic_alarm)
+                }
+            })
+
+            bind.tvPinInput.doOnTextChanged { text, start, before, count ->
+                if(count==4) viewModel.submitPin()
+            }
+
         }
 
         mqttService.apply {
@@ -102,16 +116,23 @@ class DashboardFragment : Fragment() {
             }
 
             pinValidation = {
-                viewModel.setPinvalidation(it)
+                viewModel.setPinValidation(it)
             }
 
-            alarmStatusCheck = {
-                Log.d("Check", "alarmStatusCheck $it")
+            alarmStatusCheck = { alarm ->
+                bind.apply {
+                    if (alarm) {
+                        ivAlarmInfo.setImageResource(R.drawable.ic_pre_alarm)
+                        ivAlarmInfo.visibility = View.VISIBLE
+                        viewModel?.startTimer()
+                    } else {
+                        ivAlarmInfo.visibility = View.GONE
+                        viewModel?.cancelTimer()
+                    }
+
+                }
             }
 
-            preAlarmeStatusCheck = {
-                Log.d("Check", "preAlarmeStatusCheck $it")
-            }
             fireCheck= {
                 bind.ivAlarmPos1.isEnabled = it
             }
@@ -203,6 +224,18 @@ class DashboardFragment : Fragment() {
                 key0.setOnClickListener { vm.getKeyAction(key0.text.toString()) }
                 keyCancel.setOnClickListener { vm.getKeyAction(keyCancel.text.toString()) }
                 keyConfirm.setOnClickListener { vm.getKeyAction(keyConfirm.text.toString()) }
+            }
+
+            btnPanicButton.setOnClickListener {
+                viewModel?.onPanicBtnClick()
+            }
+
+            clBtnChangePin.setOnClickListener {
+                viewModel?.onRefreshPinClick()
+            }
+
+            btnResetAlarm.setOnClickListener {
+                viewModel?.resetAlarm()
             }
         }
     }

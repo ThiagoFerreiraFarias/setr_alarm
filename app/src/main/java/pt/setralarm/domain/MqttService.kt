@@ -24,11 +24,12 @@ class MqttService(val context: Context) {
     private val serverURI = "$SERVER_URI:$SERVER_PORT"
     var client : MqttAndroidClient = MqttAndroidClient(context, serverURI,clientId)
 
+    private val preferences = SharedPreferenceRepository.getInstance(MyApplication.applicationContext())
+
     var externalModeStatus : ((AlarmMode)->Unit) = {}
     var pinValidation : ((Boolean)->Unit) = {}
 
-    var alarmStatusCheck : ((String)->Unit) = {}
-    var preAlarmeStatusCheck : ((String)->Unit) = {}
+    var alarmStatusCheck : ((alarm: Boolean)->Unit)?=null
     var fireCheck : ((Boolean)->Unit) = {}
     var internalIntrusionCheck : ((Boolean)->Unit) = {}
     var externalIntrusionCheck : ((Boolean)->Unit) = {}
@@ -55,8 +56,7 @@ class MqttService(val context: Context) {
 
                         if(regexResult?.isNotEmpty() == true){
                             externalModeStatus.invoke(getModeByName(regexResult[1])) //modo alarme
-                            alarmStatusCheck.invoke(regexResult[2]) //estado do alarme
-                            preAlarmeStatusCheck.invoke(regexResult[3]) //estado do pré alarme
+                            alarmStatusCheck?.invoke(regexResult[2]!="NOTALARMED") //estado do alarme
                             fireCheck.invoke(regexResult[4].toInt()==1) //alarme incendio 0/1
                             internalIntrusionCheck.invoke(regexResult[5].toInt()==1) //alarme intrusão interno 0/1
                             externalIntrusionCheck.invoke(regexResult[6].toInt()==1) //alarme intrusão externo 0/1

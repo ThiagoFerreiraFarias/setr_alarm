@@ -1,12 +1,15 @@
 package pt.setralarm.presentation.viewmodel
 
 import android.os.CountDownTimer
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.databinding.ObservableField
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import pt.setralarm.MyApplication
+import pt.setralarm.domain.SharedPreferenceRepository
 import pt.setralarm.util.AlarmMode
 import pt.setralarm.util.Event
 
@@ -14,11 +17,14 @@ class DashboardViewModel : ViewModel() {
 
     companion object {
         const val TAG = "DashboardViewModel"
-        private val COUNT_DOWN = 10000L
+        private val COUNT_DOWN = 5000L
+        private val COUNT_DOWN_HANDLE = 8000L
         private val TIME_FOR_UPDATE = 1000L
     }
 
     private var countDownTimer: CountDownTimer? = null
+    private val preferences =
+        SharedPreferenceRepository.getInstance(MyApplication.applicationContext())
 
     var alarmStatus = ObservableField<AlarmMode>().apply { set(AlarmMode.DISARMED) }
 
@@ -36,6 +42,9 @@ class DashboardViewModel : ViewModel() {
     private val _instructionMsg = MutableLiveData<Event<String>>()
     val instructionMsg: LiveData<Event<String>> = _instructionMsg
 
+    private val _changeAlarmIcon = MutableLiveData<Event<Unit>>()
+    val changeAlarmIcon: LiveData<Event<Unit>> = _changeAlarmIcon
+
     private var isSystemBlockedFlag = true
     private var pinAttempet = 3
     private var cachedPin = ""
@@ -45,14 +54,20 @@ class DashboardViewModel : ViewModel() {
 
     init {
         countDownTimer = object : CountDownTimer(COUNT_DOWN, TIME_FOR_UPDATE) {
-            override fun onTick(millisUntilFinished: Long) {
-                _timerText.value = ((millisUntilFinished / 1000).toFloat() + 1).toInt().toString()
-            }
+            override fun onTick(millisUntilFinished: Long) {}
 
             override fun onFinish() {
-
+                _changeAlarmIcon.value = Event(Unit)
             }
         }
+        requestStatus()
+    }
+
+    private fun requestStatus(){
+        Handler(Looper.getMainLooper()).postDelayed({
+            sendMessage("!status")
+            requestStatus()
+        }, COUNT_DOWN_HANDLE)
     }
 
 
@@ -81,7 +96,6 @@ class DashboardViewModel : ViewModel() {
                         sendMessage("!pin $typedPin")
                     }
                 }
-
             }
             "X" -> {
                 typedPin = ""
@@ -103,7 +117,7 @@ class DashboardViewModel : ViewModel() {
         MyApplication.mqttService.publish(msg, isInternal = isInternal)
     }
 
-    fun setPinvalidation(isPinValid: Boolean) {
+    fun setPinValidation(isPinValid: Boolean) {
         if (isPinValid) {
             isSystemBlockedFlag = !isSystemBlockedFlag
             _isSystemBlocked.value = Event(isSystemBlockedFlag)
@@ -115,6 +129,7 @@ class DashboardViewModel : ViewModel() {
                 setInstructionMessage("Bloqueado.")
             } else {
                 cachedPin = typedPin
+                storePin(cachedPin)
                 setInstructionMessage("Desbloqueado.")
             }
             typedPin = ""
@@ -130,4 +145,43 @@ class DashboardViewModel : ViewModel() {
         displayTypedPin.apply { set(typedPin) }
     }
 
+    private fun storePin(pin: String) {
+        preferences.storePint(pin)
+    }
+
+    fun onPanicBtnClick() {
+        sendMessage("!panic ${preferences.getStoredPin()}")
+    }
+
+    fun onRefreshPinClick() {
+        if (!isSystemBlockedFlag) {
+            if (typedPin.isEmpty()) {
+                _instructionMsg.value = Event("Digite o novo pin e refresh button.")
+            } else {
+                sendMessage("!set $cachedPin pin $typedPin")
+                preferences.storePint(typedPin)
+                cachedPin = typedPin
+                typedPin = ""
+                displayTypedPin.apply { set(typedPin) }
+            }
+        } else {
+            _instructionMsg.value = Event("Digite o seu pin primeiro.")
+        }
+    }
+
+    fun startTimer() {
+        countDownTimer!!.start()
+    }
+
+    fun cancelTimer() {
+        countDownTimer!!.cancel()
+    }
+
+    fun submitPin() {
+        getKeyAction(typedPin)
+    }
+
+    fun resetAlarm() {
+        sendMessage("!set $cachedPin ALARM 0")
+    }
 }

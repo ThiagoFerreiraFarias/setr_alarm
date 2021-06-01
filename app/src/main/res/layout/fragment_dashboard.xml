@@ -22,13 +22,56 @@
             android:id="@+id/cl_dashboard_buttons_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginTop="52dp"
             android:elevation="4dp"
             android:paddingBottom="30dp"
             app:layout_constraintEnd_toStartOf="@+id/guide_line_50"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/iv_lock"
+            >
+
+            <Button
+                android:id="@+id/btn_pos_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginEnd="20dp"
+                android:background="@drawable/bg_alarm_mode_btn"
+                android:onClick="@{() -> viewModel.selectedMode(AlarmMode.DISARMED,false)}"
+                android:text="Disarmed"
+                android:theme="@null"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_dashboard_select_mode_txt" />
+
+            <Button
+                android:id="@+id/btn_pos_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/bg_alarm_mode_btn"
+                android:onClick="@{() -> viewModel.selectedMode(AlarmMode.ARMED_FULL,false)}"
+                android:text="Armed FULL"
+                android:theme="@null"
+                app:layout_constraintEnd_toEndOf="@+id/btn_pos_1"
+                app:layout_constraintStart_toStartOf="@+id/btn_pos_1"
+                app:layout_constraintTop_toBottomOf="@+id/btn_pos_1" />
+
+            <Button
+                android:id="@+id/btn_pos_3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/bg_alarm_mode_btn"
+                android:onClick="@{() -> viewModel.selectedMode(AlarmMode.ARMED_IN_HOME,false)}"
+                android:text="Armed IN HOME"
+                android:theme="@null"
+                app:layout_constraintEnd_toEndOf="@+id/btn_pos_2"
+                app:layout_constraintStart_toStartOf="@+id/btn_pos_2"
+                app:layout_constraintTop_toBottomOf="@+id/btn_pos_2" />
 
             <TextView
                 android:id="@+id/tv_dashboard_select_mode_txt"
@@ -39,52 +82,9 @@
                 android:text="@string/btn_alarm_mode"
                 android:textSize="20sp"
                 android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-            <Button
-                android:id="@+id/btn_pos_1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                android:onClick="@{() -> viewModel.selectedMode(AlarmMode.DISARMED,false)}"
-                android:text="Disarmed"
-                android:theme="@null"
-                android:background="@drawable/bg_alarm_mode_btn"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_dashboard_select_mode_txt"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-            <Button
-                android:id="@+id/btn_pos_2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:onClick="@{() -> viewModel.selectedMode(AlarmMode.ARMED_FULL,false)}"
-                android:text="Armed FULL"
-                android:theme="@null"
-                android:background="@drawable/bg_alarm_mode_btn"
-                app:layout_constraintStart_toStartOf="@+id/btn_pos_1"
-                app:layout_constraintTop_toBottomOf="@+id/btn_pos_1"
-                app:layout_constraintEnd_toEndOf="@+id/btn_pos_1"/>
-
-            <Button
-                android:id="@+id/btn_pos_3"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:onClick="@{() -> viewModel.selectedMode(AlarmMode.ARMED_IN_HOME,false)}"
-                android:text="Armed IN HOME"
-                android:theme="@null"
-                android:background="@drawable/bg_alarm_mode_btn"
-                app:layout_constraintStart_toStartOf="@+id/btn_pos_2"
-                app:layout_constraintTop_toBottomOf="@+id/btn_pos_2"
-                app:layout_constraintEnd_toEndOf="@+id/btn_pos_2"
-                />
-
+                app:layout_constraintTop_toTopOf="parent" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -193,7 +193,36 @@
             android:layout_marginBottom="15dp"
             app:layout_constraintEnd_toEndOf="@+id/gl_keyboard"
             app:layout_constraintTop_toBottomOf="@+id/cl_dashboard_buttons_container"
+            app:layout_constraintBottom_toTopOf="@+id/tv_pin_input"
             />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_btn_change_pin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_lock"
+            app:layout_constraintStart_toStartOf="@+id/gl_keyboard"
+            app:layout_constraintTop_toTopOf="@+id/iv_lock">
+
+            <ImageView
+                android:id="@+id/iv_refresh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:src="@drawable/ic_refresh_pin"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tv_refresh_pin"
+                app:layout_constraintBottom_toBottomOf="@+id/iv_refresh"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/iv_refresh"
+                app:layout_constraintTop_toTopOf="@+id/iv_refresh" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <GridLayout
             android:id="@+id/gl_keyboard"
@@ -208,6 +237,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/guide_line_50"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_pin_input"
             app:layout_constraintVertical_bias="1"
        >
 
@@ -457,21 +487,53 @@
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 
+        <ImageView
+            android:id="@+id/iv_alarm_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="80dp"
+            android:src="@drawable/ic_pre_alarm"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/btn_panic_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guide_line_50"
+            app:layout_constraintTop_toBottomOf="@+id/cl_alarmsboard"
+            tools:visibility="visible" />
+
         <Button
+            android:id="@+id/btn_panic_button"
             android:layout_width="0dp"
             android:layout_height="80dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="24sp"
+            android:background="@drawable/bg_panic_button"
+            android:elevation="6dp"
             android:text="Panic"
-            android:textStyle="bold"
+            android:textColor="@color/white"
             android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/btn_reset_alarm"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.483"
+            app:layout_constraintStart_toEndOf="@+id/guide_line_50" />
+
+        <Button
+            android:id="@+id/btn_reset_alarm"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
             android:layout_marginHorizontal="16dp"
             android:layout_marginBottom="32sp"
-            android:textColor="@color/white"
+            android:background="@drawable/bg_reset_button"
             android:elevation="6dp"
-            android:background="@drawable/bg_panic_button"
+            android:text="Desligar alarme"
+            android:textColor="@color/black"
+            android:textSize="14dp"
+            android:textStyle="bold"
+
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/guide_line_50"
-            />
+            app:layout_constraintHorizontal_bias="0.483"
+            app:layout_constraintStart_toEndOf="@+id/guide_line_50" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_fake_splash"

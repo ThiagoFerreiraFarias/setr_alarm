@@ -8,6 +8,10 @@
     <string name="tv_alarm_intrusao_in">intrusão Interno</string>
     <string name="tv_alarm_intrusao_out">intrusão Externo</string>
 
+    <string name="tv_refresh_pin">Trocar pin</string>
+
+    <string name="panic_button_msg">!panic </string>
+
 
 <!--    COMANDOS ALARME -->
 
